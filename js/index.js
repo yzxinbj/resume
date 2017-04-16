@@ -1,16 +1,38 @@
-(function (desW) {
-    var winW = document.documentElement.clientWidth;
-    document.documentElement.style.fontSize = winW / desW * 100 + "px";
-})(640);
-function fixPagesHeight() {
-    $('.swiper-slide,.swiper-container').css({
-        height: $(window).height(),
-        width: $(window).width()
-    })
-}
-$(window).on('resize', fixPagesHeight);
-fixPagesHeight();
-var mySwiper = new Swiper('.swiper-container', {
+var desW = 640;
+var winW = document.documentElement.clientWidth;
+document.documentElement.style.fontSize = winW / desW * 100 + "px";
+
+var audioBox = $(".audio")[0];
+var myAudio = $(".audio audio")[0];
+
+var domEvent = {
+	fixPagesHeight: function () {
+		$('.swiper-slide,.swiper-container').css({
+			height: $(window).height(),
+			width: $(window).width()
+		})
+	},
+	canplay: function () {
+			audioBox.style.display = "block";
+			audioBox.className += " audioMove";
+	},
+    click: function () {
+	    if (myAudio.paused) {
+		    myAudio.play();
+		    audioBox.className = "audio audioMove";
+		    return;
+	    }
+	    myAudio.pause();
+	    audioBox.className = "audio";
+    }
+};
+
+
+$(window).on('resize', domEvent.fixPagesHeight);
+
+$(window).trigger('resize');
+
+new Swiper('.swiper-container', {
     direction: "vertical",
     loop: true,
     onInit: function (swiper) {
@@ -24,23 +46,11 @@ var mySwiper = new Swiper('.swiper-container', {
         }
     }
 });
-(function () {
-    var audioBox = $(".audio")[0];
-    var myAudio = $(".audio audio")[0];
-    window.setTimeout(function () {
-        myAudio.play();
-        myAudio.addEventListener("canplay", function () {
-            audioBox.style.display = "block";
-            audioBox.className += " audioMove";
-        }, false);
-    }, 1000);
-    audioBox.addEventListener("click", function () {
-        if (myAudio.paused) {
-            myAudio.play();
-            audioBox.className = "audio audioMove";
-            return;
-        }
-        myAudio.pause();
-        audioBox.className = "audio";
-    }, false);
-})();
+
+window.setTimeout(function () {
+    myAudio.play();
+    myAudio.addEventListener("canplay",domEvent.canplay, false);
+}, 1000);
+
+audioBox.addEventListener("click", domEvent.click, false);
+
